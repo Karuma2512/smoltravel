@@ -1,11 +1,11 @@
 import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Home from "./homepage/Home";
-import AboutPage from "./homepage/AboutPage";
 import LoginForm from "./Log/LoginForm";
 import RegisterForm from "./Log/Register";
-
-// Hàm kiểm tra role
+import PackPage from "./packages/PackagePage";
+import DestiPage from "./destination/DestinationPage";
+import DetailPages from "./packages/DetailsPage";
 const getUserRole = () => {
   return localStorage.getItem("userRole"); // Lấy role từ localStorage
 };
@@ -18,9 +18,10 @@ function App() {
         <Route path="/login" element={<LoginForm />} />
         <Route path="/register" element={<RegisterForm />} />
         <Route path="/home" element={<Home />} />
-        <Route path="/about" element={<AboutPage />} />
-
-        {/* Điều hướng tự động sau khi đăng nhập */}
+        <Route path="/destinations" element={<DestiPage />} />
+        <Route path="/packages" element={<PackPage />} />
+        <Route path="/packages/:id" element={<DetailPages />} />
+      
         <Route
           path="/redirect"
           element={

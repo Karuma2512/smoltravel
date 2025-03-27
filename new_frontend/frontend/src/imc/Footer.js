@@ -2,7 +2,7 @@ import React from "react";
 import "./footer.css";
 
 const Footer = () => {
-  
+
   const galleryImages = [
     "VietNam.jpg",
     "Malaysia.jpg",
@@ -75,11 +75,12 @@ const Footer = () => {
                 <div className="col-4" key={index}>
                   <img
                     className="img-fluid bg-light p-1 gallery-img"
-                    src={`img/${img}`}
+                    src={`/img/${img}`} // Thay đổi từ 'img/${img}' thành '/img/${img}'
                     alt={`Gallery image ${index + 1}`}
                   />
                 </div>
               ))}
+
             </div>
           </div>
 
@@ -98,7 +99,7 @@ const Footer = () => {
               />
               <button
                 type="button"
-                className="btn btn-primary py-2 position-absolute top-0 end-0 mt-2 me-2"
+                className="btn btn-primary-sign py-2 position-absolute top-0 end-0 mt-2 me-2"
               >
                 SignUp
               </button>

@@ -1,26 +1,5 @@
 <?php
 
-$allowedOrigins = ['http://localhost:3000', 'http://localhost:3001'];
-
-$origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '';
-
-if ($origin && in_array($origin, $allowedOrigins)) {
-    header("Access-Control-Allow-Origin: $origin");
-} else {
-    header("Access-Control-Allow-Origin: *"); 
-}
-
-
-if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
-    header("Access-Control-Allow-Origin: *" );
-    header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE,OPTIONS");
-    header("Access-Control-Allow-Headers: Content-Type, X-Requested-With");
-    header("HTTP/1.1 200 OK");
-    exit;
-}
-
-header('Access-Control-Allow-Methods: GET, POST, PATCH, PUT, DELETE, OPTIONS');
-header('Access-Control-Allow-Headers: Origin, Content-Type, X-Auth-Token');
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
 define('LARAVEL_START', microtime(true));

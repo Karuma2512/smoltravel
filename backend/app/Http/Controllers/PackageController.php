@@ -9,13 +9,13 @@ use Illuminate\Support\Str;
 
 class PackageController extends Controller
 {
-    //  Lấy danh sách tất cả các gói du lịch
+    // Lấy danh sách packages
     public function index()
     {
         return response()->json(Package::all());
     }
 
-    //  Lấy chi tiết một gói du lịch
+    // Lấy thông tin chi tiết một package
     public function show($id)
     {
         $package = Package::find($id);
@@ -25,75 +25,61 @@ class PackageController extends Controller
         return response()->json($package);
     }
 
-    //  Thêm mới gói du lịch (DÙNG URL ẢNH)
+
+
     public function store(Request $request)
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'destination' => 'required|string|max:255',
             'duration' => 'required|string|max:255',
-            'price' => 'required|numeric|min:0',
+            'price' => 'required|numeric',
             'description' => 'nullable|string',
-            'image_url' => 'required|url',
+            'featured' => 'required|in:0,1',  // Chấp nhận 0 hoặc 1
             'status' => 'required|in:active,inactive',
-            'featured' => 'nullable|boolean',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
-
-        //  Tải ảnh từ URL về storage
-        $imageContents = file_get_contents($request->image_url);
-        $extension = pathinfo(parse_url($request->image_url, PHP_URL_PATH), PATHINFO_EXTENSION);
-        $imageName = 'package_images/' . Str::random(20) . '.' . $extension;
-        Storage::disk('public')->put($imageName, $imageContents);
-
-        // Cập nhật đường dẫn vào database
-        $validated['image_url'] = $imageName;
-
+    
+        // Kiểm tra upload ảnh từ form
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('packages', 'public');
+            $validated['image_url'] = $imagePath;
+        } elseif ($request->image_url && filter_var($request->image_url, FILTER_VALIDATE_URL)) {
+            $validated['image_url'] = $request->image_url;
+        }
+    
         $package = Package::create($validated);
+    
         return response()->json($package, 201);
     }
+    
+    public function update(Request $request,Package $package)
+{
+    $validated = $request->validate([
+        'name' => 'sometimes|string|max:255',
+        'destination' => 'sometimes|string|max:255',
+        'duration' => 'sometimes|string|max:255',
+        'price' => 'sometimes|numeric',
+        'description' => 'nullable|string',
+        'featured' => 'nullable|in:0,1',
+        'status' => 'nullable|in:active,inactive',
+        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+    ]);
 
-    //  Cập nhật gói du lịch (DÙNG URL ẢNH)
-    public function update(Request $request, $id)
-    {
-        $package = Package::find($id);
-        if (!$package) {
-            return response()->json(['message' => 'Package not found'], 404);
+    if ($request->hasFile('image')) {
+        if ($package->image_url) {
+            Storage::disk('public')->delete($package->image_url);
         }
-
-        $validated = $request->validate([
-            'name' => 'sometimes|string|max:255',
-            'destination' => 'sometimes|string|max:255',
-            'duration' => 'sometimes|string|max:255',
-            'price' => 'sometimes|numeric|min:0',
-            'description' => 'nullable|string',
-            'image_url' => 'sometimes|url',
-            'status' => 'sometimes|in:active,inactive',
-            'featured' => 'nullable|boolean',
-        ]);
-        $validated['featured'] = filter_var($request->featured, FILTER_VALIDATE_BOOLEAN);
-
-        //  Nếu có ảnh mới từ URL
-        if ($request->image_url) {
-            // Xóa ảnh cũ nếu có
-            if ($package->image_url) {
-                Storage::disk('public')->delete($package->image_url);
-            }
-
-            // Tải ảnh mới từ URL
-            $imageContents = file_get_contents($request->image_url);
-            $extension = pathinfo(parse_url($request->image_url, PHP_URL_PATH), PATHINFO_EXTENSION);
-            $imageName = 'package_images/' . Str::random(20) . '.' . $extension;
-            Storage::disk('public')->put($imageName, $imageContents);
-
-            // Cập nhật đường dẫn mới
-            $validated['image_url'] = $imageName;
-        }
-
-        $package->update($validated);
-        return response()->json($package);
+        $imagePath = $request->file('image')->store('packages', 'public');
+        $validated['image_url'] = $imagePath;
+    } elseif ($request->image_url && filter_var($request->image_url, FILTER_VALIDATE_URL)) {
+        $validated['image_url'] = $request->image_url;
     }
+    $package->update($validated);
 
-    //  Ẩn gói du lịch (Soft Delete)
+    return response()->json($package, 200);
+}
+
     public function hide($id)
     {
         $package = Package::find($id);
@@ -105,7 +91,7 @@ class PackageController extends Controller
         return response()->json(['message' => 'Package hidden successfully']);
     }
 
-    //  Khôi phục gói du lịch
+    // Khôi phục package
     public function restore($id)
     {
         $package = Package::withTrashed()->find($id);
@@ -121,7 +107,7 @@ class PackageController extends Controller
         return response()->json(['message' => 'Package restored successfully']);
     }
 
-    //  Xóa vĩnh viễn gói du lịch
+    // Xóa vĩnh viễn package
     public function destroy($id)
     {
         $package = Package::withTrashed()->find($id);

@@ -7,18 +7,18 @@ import '../../src/index';
 import Navbar from '../imc/Header';
 
 import AboutUs from '../homepage/AboutUs';
-
+import Destination from './Destination';
 import FadeInSection from './FadeInSection';
 
 import Footer from "../imc/Footer";
 
-const AboutPage = () => {
+const Destinations = () => {
     return (
         <div>
            
             <Navbar />
             <FadeInSection>
-                <AboutUs />
+            <Destination />
             </FadeInSection>
             <FadeInSection>
                 <Footer />
@@ -29,4 +29,4 @@ const AboutPage = () => {
     );
 };
 
-export default AboutPage;
+export default Destinations;

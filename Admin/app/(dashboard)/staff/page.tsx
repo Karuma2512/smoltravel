@@ -90,7 +90,6 @@ export default function StaffPage() {
   const handleSaveStaff = () => {
     fetchStaff(); 
   };
-  // Lọc nhân viên dựa trên tìm kiếm, bộ lọc phòng ban và trạng thái
   const filteredStaff = staffMembers.filter((staff) => {
     const matchesSearch =
       staff.name.toLowerCase().includes(searchTerm.toLowerCase()) ||

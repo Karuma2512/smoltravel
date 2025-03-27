@@ -28,65 +28,58 @@ class DestinationController extends Controller
     // Thêm mới destination (DÙNG URL ẢNH)
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'country' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'image_url' => 'required|url',  // Yêu cầu ảnh phải là URL hợp lệ
-            'status' => 'required|in:active,inactive',
-            'featured' => 'nullable|boolean',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',  // Validate file ảnh
+            'status' => 'required|boolean',
+            'featured' => 'required|boolean',
         ]);
-
-        // Tải ảnh từ URL về storage
-        $imageContents = file_get_contents($request->image_url);
-        $extension = pathinfo(parse_url($request->image_url, PHP_URL_PATH), PATHINFO_EXTENSION);
-        $imageName = 'destination_images/' . Str::random(20) . '.' . $extension;
-        Storage::disk('public')->put($imageName, $imageContents);
-
-        // Cập nhật đường dẫn vào database
-        $validated['image_url'] = $imageName;
-
-        $destination = Destination::create($validated);
+    
+        // Xử lý upload ảnh hoặc image_url
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('destinations', 'public');
+            $validatedData['image_url'] = $imagePath;
+        } elseif ($request->image_url && filter_var($request->image_url, FILTER_VALIDATE_URL)) {
+            $validatedData['image_url'] = $request->image_url;
+        }
+    
+        $destination = Destination::create($validatedData);
+    
         return response()->json($destination, 201);
     }
+    
 
     // Cập nhật destination (DÙNG URL ẢNH)
     public function update(Request $request, $id)
-    {
-        $destination = Destination::find($id);
-        if (!$destination) {
-            return response()->json(['message' => 'Destination not found'], 404);
+{
+    $destination = Destination::findOrFail($id);
+
+    $validatedData = $request->validate([
+        'name' => 'required|string|max:255',
+        'country' => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        'status' => 'required|boolean',
+        'featured' => 'required|boolean',
+    ]);
+
+    // Xử lý upload ảnh hoặc image_url
+    if ($request->hasFile('image')) {
+        if ($destination->image_url) {
+            Storage::disk('public')->delete($destination->image_url);
         }
-
-        $validated = $request->validate([
-            'name' => 'sometimes|string|max:255',
-            'country' => 'sometimes|string|max:255',
-            'description' => 'nullable|string',
-            'image_url' => 'sometimes|url',  // Chấp nhận URL ảnh
-            'status' => 'sometimes|in:active,inactive',
-            'featured' => 'nullable|boolean',
-        ]);
-        $validated['featured'] = filter_var($request->featured, FILTER_VALIDATE_BOOLEAN);
-        // Nếu có ảnh mới từ URL
-        if ($request->image_url) {
-            // Xóa ảnh cũ nếu có
-            if ($destination->image_url) {
-                Storage::disk('public')->delete($destination->image_url);
-            }
-
-            // Tải ảnh mới từ URL
-            $imageContents = file_get_contents($request->image_url);
-            $extension = pathinfo(parse_url($request->image_url, PHP_URL_PATH), PATHINFO_EXTENSION);
-            $imageName = 'destination_images/' . Str::random(20) . '.' . $extension;
-            Storage::disk('public')->put($imageName, $imageContents);
-
-            // Cập nhật đường dẫn mới
-            $validated['image_url'] = $imageName;
-        }
-
-        $destination->update($validated);
-        return response()->json($destination);
+        $imagePath = $request->file('image')->store('destinations', 'public');
+        $validatedData['image_url'] = $imagePath;
+    } elseif ($request->image_url && filter_var($request->image_url, FILTER_VALIDATE_URL)) {
+        $validatedData['image_url'] = $request->image_url;
     }
+
+    $destination->update($validatedData);
+
+    return response()->json($destination, 200);
+}
 
   
     public function hide($id)
@@ -115,7 +108,27 @@ class DestinationController extends Controller
         $destination->restore();
         return response()->json(['message' => 'Destination restored successfully']);
     }
-
+    public function search(Request $request)
+    {
+        $query = Destination::query();
+    
+        if ($request->has('name')) {
+            $query->where('name', 'LIKE', '%' . $request->name . '%');
+        }
+    
+        if ($request->has('country')) {
+            $query->where('country', 'LIKE', '%' . $request->country . '%');
+        }
+    
+        $destinations = $query->get();
+    
+        if ($destinations->isEmpty()) {
+            return response()->json(['message' => 'No destinations found'], 404);
+        }
+    
+        return response()->json($destinations);
+    }
+    
     public function destroy($id)
 {
     $destination = Destination::find($id);

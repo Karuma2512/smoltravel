@@ -65,12 +65,14 @@ export function DashboardSidebar({ isMobileOpen, setIsMobileOpen }: SidebarProps
       href: "/packages",
       active: pathname === "/packages",
     },
+   
     {
       label: "Analytics",
       icon: BarChart3,
       href: "/analytics",
       active: pathname === "/analytics",
     },
+
     {
       label: "Settings",
       icon: Settings,

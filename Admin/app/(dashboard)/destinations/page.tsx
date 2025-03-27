@@ -20,7 +20,7 @@ import { Badge } from "@/components/ui/badge"
 import { DestinationDialog } from "@/components/destinations/destination-dialog"
 import { useToast } from "@/components/ui/use-toast"
 import api from "@/services/api"
-
+import { ToastContainer, toast } from "react-toastify";
 export default function DestinationsPage() {
   const [destinations, setDestinations] = useState<any[]>([])
   const [searchTerm, setSearchTerm] = useState("")
@@ -45,7 +45,7 @@ export default function DestinationsPage() {
         })
       })
   }, [])
- 
+
   const fetchdestiantion = useCallback(async () => {
     try {
       const response = await axios.get("http://localhost:8000/api/destinations");
@@ -84,7 +84,7 @@ export default function DestinationsPage() {
   const handleDeleteDestination = async (destinationId: string) => {
     try {
       const response = await axios.delete(`http://localhost:8000/api/destinations/${destinationId}`);
-  
+
       if (response.status === 200 || response.status === 204) {
         setDestinations((prev) => prev.filter(dest => dest.id !== destinationId));
         toast({
@@ -107,10 +107,17 @@ export default function DestinationsPage() {
     setCurrentDestination(destination)
     setIsDialogOpen(true)
   }
-  
+  const handleSuccess = () => {
+    fetchdestiantion();
+    toast({
+      title: "Destination successful!",
+      description: "Your action was completed successfully.",
+      variant: "default",
+    });
+  };
   const handleSaveDestination = (destinationData: any) => {
     const request = currentDestination
-      ?api.put(`destinations/${currentDestination.id}`, destinationData)
+      ? api.put(`destinations/${currentDestination.id}`, destinationData)
       : api.post("destinations", destinationData)
 
     request
@@ -192,85 +199,90 @@ export default function DestinationsPage() {
           </div>
 
           <div className="rounded-md border">
-          <div className="rounded-md border max-h-[400px] overflow-y-auto">
-    <Table>
-      <TableHeader className="table-header">
-        <TableRow>
-          <TableHead className="w-[100px]">ID</TableHead>
-          <TableHead>Image</TableHead>
-          <TableHead>
-            <div className="flex items-center">
-              Name
-              <ArrowUpDown className="ml-2 h-4 w-4" />
-            </div>
-          </TableHead>
-          <TableHead>Country</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead>Featured</TableHead>
-          <TableHead className="text-right">Actions</TableHead>
-        </TableRow>
-      </TableHeader>
+            <div className="rounded-md border max-h-[400px] overflow-y-auto">
+              <Table>
+                <TableHeader className="table-header">
+                  <TableRow>
+                    <TableHead className="w-[100px]">ID</TableHead>
+                    <TableHead>Image</TableHead>
+                    <TableHead>
+                      <div className="flex items-center">
+                        Name
+                        <ArrowUpDown className="ml-2 h-4 w-4" />
+                      </div>
+                    </TableHead>
+                    <TableHead>Country</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Featured</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
 
-      <TableBody>
-        {filteredDestinations.map((destination) => (
-          <TableRow key={destination.id}>
-            <TableCell className="font-medium">{destination.id}</TableCell>
-            <TableCell>
-              <img
-                src={destination.image_url || "/placeholder.svg"}
-                alt={destination.name}
-                className="h-12 w-20 rounded-md object-cover"
-              />
-            </TableCell>
-            <TableCell>{destination.name}</TableCell>
-            <TableCell>{destination.country}</TableCell>
-            <TableCell>
-              <Badge variant={destination.status === "active" ? "default" : "secondary"}>
-                {destination.status}
-              </Badge>
-            </TableCell>
-            <TableCell>
-              {destination.featured ? (
-                <Badge
-                  variant="outline"
-                  className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
-                >
-                  Featured
-                </Badge>
-              ) : (
-                <Badge variant="outline">Regular</Badge>
-              )}
-            </TableCell>
-            <TableCell className="text-right">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <MoreHorizontal className="h-4 w-4" />
-                    <span className="sr-only">Open menu</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                  <DropdownMenuItem onClick={() => handleEditDestination(destination)}>Edit</DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Eye className="mr-2 h-4 w-4" /> View
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    className="text-destructive focus:text-destructive"
-                    onClick={() => handleDeleteDestination(destination.id)}
-                  >
-                    Delete
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-  </div>
-</div>
+                <TableBody>
+                  {filteredDestinations.map((destination) => (
+                    <TableRow key={destination.id}>
+                      <TableCell className="font-medium">{destination.id}</TableCell>
+                      <TableCell>
+                        <img
+                          src={destination.image_url || "/placeholder.svg"}
+                          alt={destination.name}
+                          className="h-12 w-20 rounded-md object-cover"
+                        />
+                      </TableCell>
+                      <TableCell>{destination.name}</TableCell>
+                      <TableCell>{destination.country}</TableCell>
+                      <TableCell>
+                        <Badge variant={destination.status ? "default" : "secondary"}>
+                          {destination.status ? "active" : "inactive"}
+                        </Badge>
+                      </TableCell>
+
+
+
+
+
+                      <TableCell>
+                        {destination.featured ? (
+                          <Badge
+                            variant="outline"
+                            className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
+                          >
+                            Featured
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline">Regular</Badge>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                              <MoreHorizontal className="h-4 w-4" />
+                              <span className="sr-only">Open menu</span>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuItem onClick={() => handleEditDestination(destination)}>Edit</DropdownMenuItem>
+                            <DropdownMenuItem>
+                              <Eye className="mr-2 h-4 w-4" /> View
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              className="text-destructive focus:text-destructive"
+                              onClick={() => handleDeleteDestination(destination.id)}
+                            >
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
 
         </CardContent>
       </Card>
@@ -280,8 +292,10 @@ export default function DestinationsPage() {
         onOpenChange={setIsDialogOpen}
         destination={currentDestination}
         onSave={handleSaveDestination}
-        onSuccess={() => console.log("Destination saved successfully!")} 
+        onSuccess={handleSuccess}
       />
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
+
   )
 }

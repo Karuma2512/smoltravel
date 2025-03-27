@@ -24,7 +24,18 @@ interface PackageDialogProps {
 }
 
 export function PackageDialog({ open, onOpenChange, package: packageData, onSave }: PackageDialogProps) {
-  const [formData, setFormData] = useState({
+  
+  const [formData, setFormData] = useState<{
+    name: string
+    destination: string
+    duration: string
+    price: string
+    description: string
+    featured: boolean
+    status: string
+    image_file: File | null
+    image_url: string
+  }>({
     name: "",
     destination: "",
     duration: "",
@@ -32,21 +43,27 @@ export function PackageDialog({ open, onOpenChange, package: packageData, onSave
     description: "",
     featured: false,
     status: "active",
+    image_file: null,
     image_url: "",
   })
 
+
   useEffect(() => {
-    if (packageData) {
+
+    if (packageData!==null) {
+    
+  
       setFormData({
-        name: packageData.name || "",
+        name: packageData.name ,
         destination: packageData.destination || "",
         duration: packageData.duration || "",
         price: packageData.price ? packageData.price.toString() : "",
         description: packageData.description || "",
-        featured: packageData.featured || false,
-        status: packageData.status || "active",
+        featured: packageData.featured === 1 || packageData.featured === true,  // Kiểm tra kỹ
+        status: packageData.status || "inactive",
+        image_file: null,
         image_url: packageData.image_url || "",
-      })
+      });
     } else {
       setFormData({
         name: "",
@@ -55,33 +72,55 @@ export function PackageDialog({ open, onOpenChange, package: packageData, onSave
         price: "",
         description: "",
         featured: false,
-        status: "active",
+        status: "inactive",
+        image_file: null,
         image_url: "",
-      })
+      });
     }
-  }, [packageData])
+    console.log(formData)
+  }, [packageData]);
+  
+  
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleSelectChange = (name: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [name]: value }))
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setFormData((prev) => ({
+      ...prev,
+      image_file: file,
+    }));
   }
 
-  const handleSwitchChange = (name: string, checked: boolean) => {
-    setFormData((prev) => ({ ...prev, [name]: checked }))
-  }
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    const submittedData = {
-      ...formData,
-      price: Number.parseFloat(formData.price),
+    e.preventDefault();
+  
+    const submittedData = new FormData();
+    submittedData.append("name", formData.name);
+    submittedData.append("destination", formData.destination);
+    submittedData.append("duration", formData.duration);
+    submittedData.append("price", formData.price);
+    submittedData.append("description", formData.description);
+  
+
+    submittedData.append("featured", formData.featured ? "1" : "0");
+    submittedData.append("status", formData.status || "inactive");
+  
+    if (formData.image_file) {
+      submittedData.append("image", formData.image_file);
+    } else if (formData.image_url) {
+      submittedData.append("image_url", formData.image_url);
     }
-    onSave(submittedData)
-  }
+  console.log(submittedData)
+    onSave(submittedData);
+   
+  };
+  
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -99,10 +138,44 @@ export function PackageDialog({ open, onOpenChange, package: packageData, onSave
             <InputField label="Duration" name="duration" value={formData.duration} onChange={handleChange} required placeholder="e.g. 7 days" />
             <InputField label="Price ($)" name="price" type="number" value={formData.price} onChange={handleChange} required min="0" step="0.01" />
             <TextareaField label="Description" name="description" value={formData.description} onChange={handleChange} />
-            <InputField label="Image URL" name="image_url" value={formData.image_url} onChange={handleChange} />
+            <InputField label="Upload Image" name="image_file" type="file" onChange={handleFileChange} accept="image/*" />
+
             {formData.image_url && <img src={formData.image_url} alt="Package" className="w-full h-40 object-cover rounded-lg" />}
-            <SelectField label="Status" name="status" value={formData.status} onChange={handleSelectChange} options={["active", "inactive"]} />
-            <SwitchField label="Featured" name="featured" checked={formData.featured} onChange={handleSwitchChange} />
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="status" className="text-right">Status</Label>
+              <Select
+                value={formData.status}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({ ...prev, status: value }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="inactive">Inactive</SelectItem>
+                </SelectContent>
+              </Select>
+
+
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+
+              <Label htmlFor="featured" className="text-right">
+                Featured
+              </Label>
+              <Switch
+                id="featured"
+                checked={formData.featured}
+                onCheckedChange={(checked) =>
+                  setFormData((prev) => ({ ...prev, featured: checked }))
+                }
+              />
+
+
+            </div>
+
           </div>
           <DialogFooter>
             <Button type="submit">{packageData ? "Save changes" : "Add package"}</Button>
@@ -128,50 +201,5 @@ const TextareaField = ({ label, name, ...props }: { label: string; name: string 
       {label}
     </Label>
     <Textarea id={name} name={name} className="col-span-3" rows={3} {...props} />
-  </div>
-);
-
-interface SelectFieldProps {
-  label: string;
-  name: string;
-  value: string;
-  onChange: (name: string, value: string) => void;
-  options: string[];
-}
-
-const SelectField = ({ label, name, value, onChange, options }: SelectFieldProps) => (
-  <div className="grid grid-cols-4 items-center gap-4">
-    <Label htmlFor={name} className="text-right">
-      {label}
-    </Label>
-    <Select value={value} onValueChange={(val) => onChange(name, val)}>
-      <SelectTrigger id={name} className="col-span-3">
-        <SelectValue placeholder="Select status" />
-      </SelectTrigger>
-      <SelectContent>
-        {options.map((option) => (
-          <SelectItem key={option} value={option}>{option}</SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
-  </div>
-);
-
-interface SwitchFieldProps {
-  label: string;
-  name: string;
-  checked: boolean;
-  onChange: (name: string, checked: boolean) => void;
-}
-
-const SwitchField = ({ label, name, checked, onChange }: SwitchFieldProps) => (
-  <div className="grid grid-cols-4 items-center gap-4">
-    <Label htmlFor={name} className="text-right">
-      {label}
-    </Label>
-    <div className="flex items-center space-x-2">
-      <Switch id={name} checked={checked} onCheckedChange={(val) => onChange(name, val)} />
-      <Label htmlFor={name}>{checked ? "Yes" : "No"}</Label>
-    </div>
   </div>
 );

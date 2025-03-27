@@ -8,7 +8,7 @@ const AboutUs = () => {
         <div className="about-us-image-container">
           <img
             className="about-us-image"
-            src="/img/Watson_Amelia_-_Portrait_Mini.jpg"
+            src={`/img/Smol.jpg`}
             alt="Ame"
           />
         </div>

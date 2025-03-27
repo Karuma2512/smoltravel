@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import 'swiper/css/navigation';
@@ -6,34 +7,21 @@ import 'swiper/css/pagination';
 import './MyTeam.css';
 
 const MyTeam = () => {
+  const [coFounders, setCoFounders] = useState([]);
   const [activeIndex, setActiveIndex] = useState(0);
 
-  const testimonials = [
-    {
-      name: "Grace",
-      location: "New York, USA",
-      image: "img/grace.jpg",
-      text: "Tempor erat elitr rebum at clita. Diam dolor diam ipsum sit diam amet diam et eos. Clita erat ipsum et lorem et sit."
-    },
-    {
-      name: "Amelia Waston",
-      location: "Los Angeles, USA",
-      image: "img/Ame.jpg",
-      text: "Tempor erat elitr rebum at clita. Diam dolor diam ipsum sit diam amet diam et eos. Clita erat ipsum et lorem et sit."
-    },
-    {
-      name: "Tohru",
-      location: "Chicago, USA",
-      image: "img/tohru.jpg",
-      text: "Tempor erat elitr rebum at clita. Diam dolor diam ipsum sit diam amet diam et eos. Clita erat ipsum et lorem et sit."
-    },
-    {
-      name: "Elma",
-      location: "San Francisco, USA",
-      image: "img/Elma.jpg",
-      text: "Tempor erat elitr rebum at clita. Diam dolor diam ipsum sit diam amet diam et eos. Clita erat ipsum et lorem et sit."
-    }
-  ];
+  useEffect(() => {
+    const fetchCoFounders = async () => {
+      try {
+        const response = await axios.get('http://localhost:8000/api/co-founders');
+        setCoFounders(response.data);
+      } catch (error) {
+        console.error('Error fetching Co-Founders:', error);
+      }
+    };
+
+    fetchCoFounders();
+  }, []);
 
   return (
     <div className="container-xxl py-5">
@@ -53,25 +41,51 @@ const MyTeam = () => {
           }}
           className="testimonial-carousel"
         >
-          {testimonials.map((testimonial, index) => (
+          {coFounders.map((coFounder, index) => (
             <SwiperSlide key={index}>
-              <div
-                className={`testimonial-item ${
-                  activeIndex === index ? '' : 'dimmed'
-                }`}
-              >
+              <div className={`testimonial-item ${activeIndex === index ? '' : 'dimmed'}`}>
                 <img
                   className="rounded-circle shadow p-1 mx-auto mb-3"
-                  src={testimonial.image}
-                  alt={testimonial.name}
-                  style={{
-                    width: '100px',
-                    height: '100px',
-                  }}
+                  src={coFounder.profile_picture_url}
+                  alt={coFounder.name}
+                  style={{ width: '130px', height: '130px' }}
                 />
-                <h5 className="mb-0">{testimonial.name}</h5>
-                <p>{testimonial.location}</p>
-                <p className="mt-2">{testimonial.text}</p>
+                <h5 className="mb-0"><strong>{coFounder.name}</strong></h5>
+                <p>{coFounder.position}</p>
+                <p className="mt-2">{coFounder.bio}</p>
+                <div className="social-icons mt-2 d-flex justify-content-center">
+                  {coFounder.linkedin && (
+                    <a
+                      href={coFounder.linkedin}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn btn-square mx-1"
+                    >
+                      <i className="fab fa-linkedin" style={{ color: '#0A66C2', fontSize: '24px' }}></i>
+                    </a>
+                  )}
+                  {coFounder.twitter && (
+                    <a
+                      href={coFounder.twitter}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn btn-square mx-1"
+                    >
+                      <i className="fab fa-twitter" style={{ color: '#1DA1F2', fontSize: '24px' }}></i>
+                    </a>
+                  )}
+                  {coFounder.instagram && (
+                    <a
+                      href={coFounder.instagram}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn btn-square mx-1"
+                    >
+                      <i className="fab fa-instagram" style={{ color: '#E4405F', fontSize: '24px' }}></i>
+                    </a>
+                  )}
+                </div>
+
               </div>
             </SwiperSlide>
           ))}

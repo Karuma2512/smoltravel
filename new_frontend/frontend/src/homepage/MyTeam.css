@@ -42,4 +42,23 @@
   .swiper-button-prev:hover {
     background-color: rgba(255, 255, 255, 1);
   }
-  
+  /* Bo tròn các icon mạng xã hội */
+.social-icons a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px; /* Tăng kích thước */
+  height: 40px; /* Tăng kích thước */
+  border-radius: 50%; /* Bo tròn */
+  background-color: #f1f1f1; /* Màu nền nhẹ */
+  transition: all 0.3s ease;
+}
+
+
+.social-icons a:hover {
+  background-color: aqua; 
+}
+
+.social-icons a:hover i {
+  color: white !important; 
+}

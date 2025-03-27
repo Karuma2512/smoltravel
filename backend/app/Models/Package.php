@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -16,21 +17,26 @@ class Package extends Model
         'price',
         'description',
         'status',
-        'featured' 
+        'featured',
+        'image_url'  
     ];
 
     protected $casts = [
         'featured' => 'boolean',
     ];
 
-    protected $appends = [
-        'image_url' 
-    ];
+    protected $dates = ['deleted_at'];
 
-    public function getImageFullUrlAttribute()
+    public function getImageUrlAttribute()
     {
-        return url("storage/" . $this->attributes['image_url']);
+        return isset($this->attributes['image_url']) && $this->attributes['image_url']
+            ? asset('storage/' . $this->attributes['image_url'])
+            : null;
     }
 
-    protected $dates = ['deleted_at'];
+
+    public function getStatusLabelAttribute()
+    {
+        return $this->attributes['status'] == 'active' ? 'Active' : 'Inactive';
+    }
 }

@@ -1,0 +1,223 @@
+.package-details-container {
+   margin-top: 120px;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    max-width: 900px;
+    margin: 20px auto;
+    padding: 20px;
+    gap: 20px;
+}
+.back-button {
+    background-color: #ccc;
+    color: black;
+    border: none;
+    padding: 10px 15px;
+    margin-top: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+.package-back-buttons {
+    padding-top: 650px;
+  position: absolute;
+  top: 20px;
+  left: 20px;
+}
+
+.back-button {
+  background-color: #ccc;
+  color: black;
+  border: none;
+  padding: 10px 15px;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+.back-button:hover {
+  background-color: #bbb;
+}
+
+  .back-button:hover {
+    background-color: #bbb;
+  }
+  
+.package-image {
+    flex: 1;
+    max-width: 40%;
+}
+
+.package-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+.package-details {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* Tiêu đề */
+.package-details h2 {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+/* Đánh giá sao */
+.package-rating {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 18px;
+    color: #f4b400;
+    margin-bottom: 10px;
+}
+
+/* Mô tả */
+.package-description {
+    font-size: 16px;
+    margin-bottom: 15px;
+}
+
+/* Thông tin gói du lịch */
+.package-info {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.package-info span {
+    background: #f8f9fa;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Bố cục Location - Price - Status */
+.package-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.package-meta span {
+    flex: 1;
+    text-align: center;
+    background: #f8f9fa;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+/* Nút BOOK NOW */
+.package-buttons {
+    text-align: center;
+}
+
+.book-now {
+    background: #ff5733;
+    color: white;
+    padding: 12px 20px;
+    font-size: 18px;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+    width: 100%;
+}
+
+.book-now:hover {
+    background: #e64a19;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .package-container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .package-image {
+        max-width: 100%;
+        height: 250px;
+    }
+
+    .package-details {
+        text-align: center;
+        align-items: center;
+    }
+
+    .package-meta {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
+.package-description-wrapper {
+    width: 100%;
+    margin-top: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.package-description-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.package-description-container label {
+    font-weight: bold;
+}
+
+.package-description {
+    width: 100%;
+    min-height: 100px;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    resize: vertical;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .package-content {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .package-image {
+        max-width: 100%;
+        height: 250px;
+    }
+
+    .package-details {
+        text-align: center;
+        align-items: center;
+    }
+
+    .package-meta {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .package-description-wrapper {
+        text-align: center;
+    }
+}

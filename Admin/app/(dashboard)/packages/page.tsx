@@ -9,8 +9,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { PackageDialog } from "@/components/packages/package-dialog";
 import { useToast } from "@/components/ui/use-toast";
+import api from "@/services/api"
 
-// 🎯 Định nghĩa kiểu dữ liệu Package
+
 interface PackageData {
   id: number;
   name: string;
@@ -29,7 +30,7 @@ export default function PackagesPage() {
   const [currentPackage, setCurrentPackage] = useState<PackageData | null>(null);
   const { toast } = useToast();
 
-  // 🔹 Fetch danh sách package từ API
+
   useEffect(() => {
     axios
       .get("http://localhost:8000/api/packages")
@@ -39,65 +40,68 @@ export default function PackagesPage() {
         toast({ title: "Error", description: "Failed to fetch packages", variant: "destructive" });
       });
   }, []);
-
-  // 🔹 Mở dialog thêm mới package
+  const fetchPackages = async () => {
+    try {
+      const response = await axios.get("http://localhost:8000/api/packages");
+      setPackages(response.data);
+    } catch (error) {
+      console.error("Error fetching packages:", error);
+      toast({ title: "Error", description: "Failed to fetch packages", variant: "destructive" });
+    }
+  };
+  
+  useEffect(() => {
+    fetchPackages();
+  }, []);
+  
   const handleAddPackage = useCallback(() => {
     setCurrentPackage(null);
     setIsDialogOpen(true);
   }, []);
 
-  // 🔹 Mở dialog chỉnh sửa package
+
   const handleEditPackage = useCallback((pkg: PackageData) => {
     setCurrentPackage(pkg);
     setIsDialogOpen(true);
   }, []);
 
-  // 🔹 Xóa package
-  const handleDeletePackage = useCallback((packageId: number) => {
-    axios
-      .delete(`http://localhost:8000/api/packages/${packageId}`)
-      .then(() => {
-        setPackages((prevPackages) => prevPackages.filter((pkg) => pkg.id !== packageId));
-        toast({ title: "Deleted", description: `Package ID ${packageId} has been removed.` });
-      })
-      .catch((error) => {
-        console.error("Error deleting package:", error);
-        toast({ title: "Error", description: "Failed to delete package", variant: "destructive" });
-      });
+  const handleDeletePackage = useCallback(async (packageId: number) => {
+    try {
+      await axios.delete(`http://localhost:8000/api/packages/${packageId}`);
+      toast({ title: "Deleted", description: `Package ID ${packageId} has been removed.` });
+  
+      fetchPackages(); // Load lại danh sách
+    } catch (error) {
+      console.error("Error deleting package:", error);
+      toast({ title: "Error", description: "Failed to delete package", variant: "destructive" });
+    }
   }, [toast]);
+  
 
-  // 🔹 Lưu package (thêm mới hoặc cập nhật)
+
   const handleSavePackage = useCallback(
-    (packageData: PackageData) => {
-      if (currentPackage) {
-        axios
-          .put(`http://localhost:8000/api/packages/${currentPackage.id}`, packageData)
-          .then((response) => {
-            setPackages((prevPackages) =>
-              prevPackages.map((pkg) => (pkg.id === response.data.id ? response.data : pkg))
-            );
-            toast({ title: "Updated", description: `Package ${packageData.name} has been updated.` });
-          })
-          .catch((error) => {
-            console.error("Error updating package:", error);
-            toast({ title: "Error", description: "Failed to update package", variant: "destructive" });
-          });
-      } else {
-        axios
-          .post("http://localhost:8000/api/packages", packageData)
-          .then((response) => {
-            setPackages((prevPackages) => [...prevPackages, response.data]);
-            toast({ title: "Created", description: `Package ${packageData.name} has been added.` });
-          })
-          .catch((error) => {
-            console.error("Error creating package:", error);
-            toast({ title: "Error", description: "Failed to create package", variant: "destructive" });
-          });
+    async (packageData: PackageData) => {
+      try {
+        if (currentPackage) {
+          // Cập nhật package
+          await api.put(`packages/${currentPackage.id}`, packageData);
+          toast({ title: "Updated", description: `Package ${packageData.name} has been updated.` });
+        } else {
+          // Thêm package mới
+          await axios.post("http://localhost:8000/api/packages", packageData);
+          toast({ title: "Created", description: `Package ${packageData.name} has been added.` });
+        }
+  
+        setIsDialogOpen(false);
+        fetchPackages(); // Load lại danh sách
+      } catch (error) {
+        console.error("Error saving package:", error);
+        toast({ title: "Error", description: "Failed to save package", variant: "destructive" });
       }
-      setIsDialogOpen(false);
     },
     [currentPackage, toast]
   );
+  
 
   return (
     <div className="flex flex-col gap-4">
@@ -138,12 +142,9 @@ export default function PackagesPage() {
                     <TableRow key={pkg.id}>
                       <TableCell>{pkg.id}</TableCell>
                       <TableCell>
-                        <img
-                          src={`http://localhost:8000/storage/${pkg.image_url}`}
-                          alt={pkg.name}
-                          className="h-12 w-20 rounded-md object-cover"
-                        />
+                      <img src={pkg.image_url || "https://via.placeholder.com/100"} alt={pkg.name} className="h-12 w-20 object-cover" />
                       </TableCell>
+
                       <TableCell>{pkg.name}</TableCell>
                       <TableCell>{pkg.destination}</TableCell>
                       <TableCell>{pkg.duration}</TableCell>

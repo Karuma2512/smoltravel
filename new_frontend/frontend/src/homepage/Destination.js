@@ -1,100 +1,111 @@
-import React from "react";
-import './destination.css'
-const Destination = () => {
-  const destinations = [
-    {
-      id: 1,
-      imgSrc: "img/Thailand.jpg",
-      discount: "30% OFF",
-      location: "Thailand",
-      delay: "0.1s",
-    },
-    {
-      id: 2,
-      imgSrc: "img/Malaysia.jpg",
-      discount: "25% OFF",
-      location: "Malaysia",
-      delay: "0.3s",
-    },
-    {
-      id: 3,
-      imgSrc: "img/Australia.jpg",
-      discount: "35% OFF",
-      location: "Australia",
-      delay: "0.5s",
-    },
-  ];
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import "./destination.css";
 
+
+const Destination = () => {
+  const [destinations, setDestinations] = useState([]);
+  const [selectedDestination, setSelectedDestination] = useState(null);
+  const [showPopup, setShowPopup] = useState(false);
+
+
+  useEffect(() => {
+    const fetchDestinations = async () => {
+      try {
+        const response = await axios.get("http://localhost:8000/api/destinations");
+        setDestinations(response.data.slice(0, 10)); 
+      } catch (error) {
+        console.error("Lỗi khi lấy dữ liệu:", error);
+      }
+    };
+    fetchDestinations();
+  }, []);
+  const handleSelectDestination = (destination) => {
+    setSelectedDestination(destination);
+    setShowPopup(true);
+  };
   return (
-    <div className="container-xxl py-5 destination">
-      <div className="container">
-        <div
-          className="text-center wow fadeInUp"
-          data-wow-delay="0.1s"
-        >
-          <h6 className="section-title bg-white text-center text-primary px-3">
-            Destination
-          </h6>
-          <h1 className="mb-5">Popular Destination</h1>
-        </div>
-        <div className="row g-3">
-          <div className="col-lg-7 col-md-6">
-            <div className="row g-3">
-              {destinations.map((destination) => (
-                <div
-                  key={destination.id}
-                  className={`col-lg-${
-                    destination.id === 1 ? "12" : "6"
-                  } col-md-12 wow zoomIn`}
-                  data-wow-delay={destination.delay}
+    <div id="fh5co-destination">
+      <div className="tour-fluid">
+        <div className="row">
+          <div className="col-md-12">
+            <ul id="fh5co-destination-list" className="animate-box">
+              {destinations.slice(0, 5).map(destination => (
+                <li key={destination.id} className="one-forth text-center" style={{ backgroundImage: `url(${destination.image_url})` }}
+                onClick={() => handleSelectDestination(destination)} 
                 >
-                  <a
-                    className="position-relative d-block overflow-hidden"
-                    href=""
-                  >
-                    <img
-                      className="img-fluid"
-                      src={destination.imgSrc}
-                      alt={destination.location}
-                    />
-                    <div className="bg-white text-danger fw-bold position-absolute top-0 start-0 m-3 py-1 px-2">
-                      {destination.discount}
-                    </div>
-                    <div className="bg-white text-primary fw-bold position-absolute bottom-0 end-0 m-3 py-1 px-2">
-                      {destination.location}
+                  <a>
+                    <div className="case-studies-summary">
+                      <h2>{destination.name}</h2>
                     </div>
                   </a>
-                </div>
+                </li>
               ))}
-            </div>
-          </div>
-          <div
-            className="col-lg-5 col-md-6 wow zoomIn"
-            data-wow-delay="0.7s"
-            style={{ minHeight: "350px" }}
-          >
-            <a
-              className="position-relative d-block h-100 overflow-hidden"
-              href=""
-            >
-              <img
-                className="img-fluid position-absolute w-100 h-100"
-                src="img/Indonesia.jpg"
-                alt="Indonesia"
-                style={{ objectFit: "cover" }}
-              />
-              <div className="bg-white text-danger fw-bold position-absolute top-0 start-0 m-3 py-1 px-2">
-                20% OFF
-              </div>
-              <div className="bg-white text-primary fw-bold position-absolute bottom-0 end-0 m-3 py-1 px-2">
-                Indonesia
-              </div>
-            </a>
+              
+              {/* Ô Most Popul  ar Destinations */}
+              <li className="one-half text-center popular-destination">
+                <div className="title-bg">
+                  <div className="case-studies-summary">
+                    <h2>Most Popular Destinations</h2>
+                    <span><a href="/destinations">View All Destinations</a></span>
+                  </div>
+                </div>
+              </li>
+              
+              {destinations.slice(5, 10).map(destination => (
+                <li key={destination.id} className="one-forth text-center" style={{ backgroundImage: `url(${destination.image_url})` }}
+                
+                onClick={() => handleSelectDestination(destination)} 
+                >
+                  
+                  <a>
+                    <div className="case-studies-summary">
+                      <h2>{destination.name}</h2>
+                    </div>
+                  </a>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </div>
+      {showPopup && selectedDestination && (
+        <div className="popup-overlay" onClick={() => setShowPopup(false)}>
+          <div className="popup-content" onClick={(e) => e.stopPropagation()}>
+            <button className="close-btn" onClick={() => setShowPopup(false)}>✖</button>
+            <h2 className="popup-title">Destination Details</h2>
+
+            <img src={selectedDestination.image_url} alt={selectedDestination.name} className="popup-img" />
+
+            <div className="popup-form">
+              <div className="info-item">
+                <span className="info-label">Name:</span>
+                <span className="info-value">{selectedDestination.name}</span>
+              </div>
+
+              <div className="info-item">
+                <span className="info-label">Country:</span>
+                <span className="info-value">{selectedDestination.country}</span>
+              </div>
+
+              <div className="info-item">
+                <span className="info-label">Description:</span>
+                <span className="info-value">{selectedDestination.description || "No description available"}</span>
+              </div>
+
+              <div className="info-item">
+                <span className="info-label">Status:</span>
+                <span className="info-value">{selectedDestination.status ? "Active" : "Inactive"}</span>
+              </div>
+
+              <div className={`toggle-feature ${selectedDestination.featured ? "active" : ""}`}>
+                Feature: {selectedDestination.featured ? "Yes" : "No"}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
-
 export default Destination;

@@ -128,4 +128,38 @@
   .dark-mode .nav-link i {
     color: #fff;
   }
+  .user-icon-container {
+    position: relative;
+    cursor: pointer;
+    margin-left: 20px;
+  }
+  
+  .user-icon {
+    font-size: 1.8rem;
+    color: #007bff;
+  }
+  
+  .user-dropdown {
+    position: absolute;
+    top: 40px;
+    right: 0;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    z-index: 100;
+  }
+  
+  .user-dropdown .dropdown-item {
+    padding: 8px 12px;
+    color: #333;
+    text-decoration: none;
+    display: block;
+  }
+  
+  .user-dropdown .dropdown-item:hover {
+    background-color: #f0f0f0;
+    color: #007bff;
+  }
   

@@ -22,13 +22,19 @@ class Destination extends Model
     protected $casts = [
         'featured' => 'boolean', 
     ];
-    protected $appends =[
-        'image_url'
-    ];
+    protected $appends = ['image_url'];
+
+    protected $dates = ['deleted_at'];
+
+   
     public function getImageUrlAttribute()
     {
-        return url("storage/" . $this->attributes['image_url']);
+        return $this->attributes['image_url']
+            ? asset('storage/' . $this->attributes['image_url'])
+            : null;
     }
-    protected $dates = ['deleted_at']; // 🟢 Khai báo cột deleted_at để Laravel hiểu đây là Soft Delete
+    public function getStatusLabelAttribute()
+    {
+        return $this->attributes['status'] == 1 ? 'active' : 'inactive';
+    }
 }
-

@@ -17,4 +17,19 @@
     width: 100%;
     text-align: center;
   }
+  .suggestions-list {
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+  }
+  
+  .suggestion-item {
+    list-style: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .suggestion-item:hover {
+    background-color: #f0f0f0;
+  }
   

@@ -1,12 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import "../homepage/navbar.css";
 
-
 const Navbar = () => {
-  const [fix, setFix] = useState(false);  
+  const [fix, setFix] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    setIsAuthenticated(!!token);
+  }, []);
 
   const handleScroll = () => {
     setFix(window.scrollY >= 150);
@@ -34,6 +41,16 @@ const Navbar = () => {
     setIsDarkMode(!isDarkMode);
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setIsAuthenticated(false);
+    navigate("/login");
+  };
+
+  const toggleDropdown = () => {
+    setShowDropdown(!showDropdown);
+  };
+
   return (
     <div className={`navbar-container-fluid p-0 ${fix ? "navbar-fixed" : ""}`}>
       <nav
@@ -42,7 +59,7 @@ const Navbar = () => {
       >
         <NavLink to="/" className="navbar-brand p-0">
           <h1 className="text-primary m-0">
-            <img src="img/Ame.jpg" alt="Tourist" className="icon-img me-3" />
+            <img src={`/img/Ame.jpg`} alt="Welcome"  className="icon-img me-3" />
             Amelia
           </h1>
         </NavLink>
@@ -67,47 +84,49 @@ const Navbar = () => {
             <NavLink to="/" className={({ isActive }) => `nav-item nav-link ${isActive ? "active" : ""}`}>
               Home
             </NavLink>
-            <NavLink to="/about" className={({ isActive }) => `nav-item nav-link ${isActive ? "active" : ""}`}>
-              About
+            <NavLink to="/destinations" className={({ isActive }) => `nav-item nav-link ${isActive ? "active" : ""}`}>
+              Destination
             </NavLink>
             <NavLink to="/service" className={({ isActive }) => `nav-item nav-link ${isActive ? "active" : ""}`}>
               Services
             </NavLink>
-            <NavLink to="/package" className={({ isActive }) => `nav-item nav-link ${isActive ? "active" : ""}`}>
+            <NavLink to="/packages" className={({ isActive }) => `nav-item nav-link ${isActive ? "active" : ""}`}>
               Packages
             </NavLink>
-            <div className="nav-item dropdown">
-
-              <span className="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-                Pages
-              </span>
-              <div className="dropdown-menu m-0">
-                <NavLink to="/destination" className="dropdown-item">
-                  Destination
-                </NavLink>
-                <NavLink to="/booking" className="dropdown-item">
-                  Booking
-                </NavLink>
-                <NavLink to="/team" className="dropdown-item">
-                  Travel Guides
-                </NavLink>
-                <NavLink to="/testimonial" className="dropdown-item">
-                  Testimonial
-                </NavLink>
-              </div>
-            </div>
             <NavLink to="/contact" className={({ isActive }) => `nav-item nav-link ${isActive ? "active" : ""}`}>
               Contact
             </NavLink>
             <NavLink to="/AI" className={({ isActive }) => `nav-item nav-link ${isActive ? "active" : ""}`}>
               Plan AI
             </NavLink>
-            
           </div>
-          
-          <NavLink to="/login" className="btn btn-primary rounded-pill py-2 px-4">
-            Register
-          </NavLink>
+
+          {isAuthenticated ? (
+            <div className="user-icon-container" onClick={toggleDropdown}>
+              <i className="bi bi-person-circle user-icon"></i>
+
+              {showDropdown && (
+                <div className="user-dropdown">
+                  <NavLink to="/tourists" className="dropdown-item">
+                    Your Tourists
+                  </NavLink>
+                  <NavLink to="/information" className="dropdown-item">
+                    Information
+                  </NavLink>
+                  <NavLink to="/booking" className="dropdown-item">
+                    Your Booking
+                  </NavLink>
+                  <span className="dropdown-item" onClick={handleLogout}>
+                    Log out
+                  </span>
+                </div>
+              )}
+            </div>
+          ) : (
+            <NavLink to="/login" className="btn btn-primary rounded-pill py-2 px-4">
+              Log In
+            </NavLink>
+          )}
         </div>
       </nav>
     </div>

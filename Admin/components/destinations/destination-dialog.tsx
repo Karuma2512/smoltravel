@@ -4,7 +4,7 @@ import type React from "react"
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import api from '../../services/api'; // Import the axios instance
+import api from '../../services/api'; 
 
 import {
   Dialog,
@@ -25,71 +25,68 @@ interface DestinationDialogProps {
   onOpenChange: (open: boolean) => void
   destination: any
   onSave: (destinationData: any) => void
-  onSuccess: ()=>void
+  onSuccess: () => void
 }
 
-export function DestinationDialog({ open,  onSuccess, onOpenChange, destination, onSave }: DestinationDialogProps) {
+export function DestinationDialog({ open, onSuccess, onOpenChange, destination, onSave }: DestinationDialogProps) {
   const [formData, setFormData] = useState({
     name: "",
     country: "",
     description: "",
     featured: false,
     status: "active",
-    image_url: "/placeholder.svg?height=100&width=200",
+    image_url: "",
   })
-  const [profileFile, setProfileFile] = useState<File | null>(null);
-
+  const [imageFile, setImageFile] = useState<File | null>(null);  
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
- const [imagePreview, setImagePreview] = useState<string | null>(null); 
- useEffect(() => {
-  if (destination) {
-    setFormData({
-      name: destination.name || "",
-      country: destination.country || "",
-      description: destination.description || "",
-      featured: destination.featured || false,
-      status: destination.status || "active",
-      image_url: destination.image_url || "", // Để giá trị rỗng nếu không có URL
-    });
-  } else {
-    setFormData({
-      name: "",
-      country: "",
-      description: "",
-      featured: false,
-      status: "active",
-      image_url: "", // Không đặt lại placeholder
-    });
-  }
-}, [destination]);
 
-  
-const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-  const { name, value } = e.target;
-  setFormData((prev) => ({ ...prev, [name]: value }));
-};
+  useEffect(() => {
+    if (destination) {
+      setFormData({
+        name: destination.name || "",
+        country: destination.country || "",
+        description: destination.description || "",
+        featured: destination.featured || false,
+        status: destination.status || "active",
+        image_url: destination.image_url || "",  
+      });
+      setImagePreview(destination.image_url || ""); 
+    } else {
+      setFormData({
+        name: "",
+        country: "",
+        description: "",
+        featured: false,
+        status: "active",
+        image_url: "", 
+      });
+      setImagePreview(null);
+    }
+  }, [destination]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setImageFile(file);
+
+
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => setImagePreview(reader.result as string);
+      reader.readAsDataURL(file);
+    } else {
+      setImagePreview(null);
+    }
+  };
 
   const handleSelectChange = (name: string, value: string) => {
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
-const handleDeleteDestination = async () => {
-    if (!destination) return;
-
-    setLoading(true);
-    try {
-      await api.delete(`co-founders/${destination.id}`);
-      onSuccess();
-      onOpenChange(false);
-    } catch (error) {
-      console.error("Error deleting co-founder:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSwitchChange = (name: string, checked: boolean) => {
-    setFormData((prev) => ({ ...prev, [name]: checked }))
-  }
+ 
   const isValidUrl = (url: string) => {
     try {
       new URL(url);
@@ -98,41 +95,50 @@ const handleDeleteDestination = async () => {
       return false;
     }
   };
-  
+  const resetForm = () => {
+    setFormData({
+      name: "",
+      country: "",
+      description: "",
+      featured: false,
+      status: "active",
+      image_url: "",
+    });
+    setImageFile(null);
+    setImagePreview(null);
+  };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-  
-    // Kiểm tra URL hợp lệ
-    if (!isValidUrl(formData.image_url)) {
-      alert("Image URL is not valid! Please enter a valid URL.");
-      setLoading(false);
-      return;
-    }
-  
+
     try {
       const formPayload = new FormData();
-  
-    
-Object.entries(formData).forEach(([key, value]) => {
-  if (key === "featured") {
-    formPayload.append(key, key === "featured" ? (value ? "1" : "0") : value as string);
-  } else {
-    formPayload.append(key, value as string);
-  }
-});
+
       
-      
-  
-      formPayload.append("image_url", formData.image_url); // Gửi ảnh bằng URL
-  
+      Object.entries(formData).forEach(([key, value]) => {
+        if (key === "featured") {
+          formPayload.append(key, value ? "1" : "0"); 
+        } else if (key !== "image_url") {
+          formPayload.append(key, value as string);
+        }
+      });
+
+
+      if (imageFile) {
+        formPayload.append("image", imageFile); 
+      } else if (formData.image_url && isValidUrl(formData.image_url)) {
+        formPayload.append("image_url", formData.image_url);
+      }
+
       const endpoint = destination ? `destinations/${destination.id}` : "destinations";
       const method = destination ? api.put : api.post;
-  
-      await method(endpoint, formPayload);
-  
+
+      await method(endpoint, formPayload, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
       onSuccess();
-      console.log("✅ Đã gọi onOpenChange(false)"); 
+      resetForm();
       onOpenChange(false);
     } catch (error) {
       console.error("Error saving destination:", error);
@@ -140,7 +146,9 @@ Object.entries(formData).forEach(([key, value]) => {
       setLoading(false);
     }
   };
-  
+
+
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[550px]">
@@ -194,10 +202,24 @@ Object.entries(formData).forEach(([key, value]) => {
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="image" className="text-right">
-                Image URL
+                Image
               </Label>
-              <Input id="image_url" name="image_url" value={formData.image_url} onChange={handleChange} className="col-span-3" />
-
+              <Input
+                id="image"
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="col-span-3"
+              />
+              {imagePreview && (
+                <div className="col-span-4 flex justify-center items-center mt-2">
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    className="h-32 object-cover rounded-md border border-gray-300 shadow-md"
+                  />
+                </div>
+              )}
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="status" className="text-right">
@@ -208,10 +230,11 @@ Object.entries(formData).forEach(([key, value]) => {
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="inactive">Inactive</SelectItem>
+                  <SelectItem value="1">Active</SelectItem>  
+                  <SelectItem value="0">Inactive</SelectItem> 
                 </SelectContent>
               </Select>
+
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="featured" className="text-right">
@@ -221,9 +244,10 @@ Object.entries(formData).forEach(([key, value]) => {
                 <Switch
                   id="featured"
                   checked={formData.featured}
-                  onCheckedChange={(checked) => handleSwitchChange("featured", checked)}
+                  onCheckedChange={(checked) => setFormData(prev => ({ ...prev, featured: checked }))}
                 />
                 <Label htmlFor="featured">{formData.featured ? "Yes" : "No"}</Label>
+
               </div>
             </div>
           </div>

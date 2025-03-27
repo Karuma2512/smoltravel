@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import './booking.css';
 
 const Booking = () => {
@@ -6,9 +7,26 @@ const Booking = () => {
         name: '',
         email: '',
         dateTime: '',
-        destination: '1',
-        specialRequest: ''
+        destination: '',
+        specialRequest: '',
+        num_people: 1
     });
+
+    const [message, setMessage] = useState('');
+    const [destinations, setDestinations] = useState([]);
+
+    useEffect(() => {
+        // Lấy danh sách điểm đến từ API
+        const fetchDestinations = async () => {
+            try {
+                const response = await axios.get('http://localhost:8000/api/packages');
+                setDestinations(response.data);
+            } catch (error) {
+                console.error("Error fetching destinations:", error);
+            }
+        };
+        fetchDestinations();
+    }, []);
 
     const handleChange = (e) => {
         const { id, value } = e.target;
@@ -18,10 +36,40 @@ const Booking = () => {
         });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Handle form submission (e.g., send data to an API or process it)
-        console.log(formData);
+        try {
+            const token = localStorage.getItem('token'); 
+            const response = await axios.post(
+                'http://localhost:8000/api/bookings',
+                {
+                    package_id: formData.destination, 
+                    booking_date: formData.dateTime,
+                    num_people: formData.num_people,
+                    special_request: formData.specialRequest
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            );
+
+            setMessage('Booking successful!');
+            setFormData({
+                name: '',
+                email: '',
+                dateTime: '',
+                destination: '',
+                specialRequest: '',
+                num_people: 1
+            });
+
+            console.log(response.data);
+        } catch (error) {
+            console.error("Booking failed:", error.response ? error.response.data : error.message);
+            setMessage('Booking failed. Please try again.');
+        }
     };
 
     return (
@@ -32,12 +80,11 @@ const Booking = () => {
                         <div className="col-md-6 text-white">
                             <h6 className="text-white text-uppercase">Booking</h6>
                             <h1 className="text-white mb-4">Online Booking</h1>
-                            <p className="mb-4">Tempor erat elitr rebum at clita. Diam dolor diam ipsum sit. Aliqu diam amet diam et eos. Clita erat ipsum et lorem et sit.</p>
-                            <p className="mb-4">Tempor erat elitr rebum at clita. Diam dolor diam ipsum sit. Aliqu diam amet diam et eos. Clita erat ipsum et lorem et sit, sed stet lorem sit clita duo justo magna dolore erat amet</p>
-                            <a className="btn btn-outline-light py-3 px-5 mt-2" href="#">Read More</a>
+                            <p className="mb-4">Tempor erat elitr rebum at clita. Diam dolor diam ipsum sit.</p>
                         </div>
                         <div className="col-md-6">
                             <h1 className="text-white mb-4">Book A Tour</h1>
+                            {message && <p className="alert alert-info">{message}</p>}
                             <form onSubmit={handleSubmit}>
                                 <div className="row g-3">
                                     <div className="col-md-6">
@@ -49,6 +96,7 @@ const Booking = () => {
                                                 placeholder="Your Name"
                                                 value={formData.name}
                                                 onChange={handleChange}
+                                                required
                                             />
                                             <label htmlFor="name">Your Name</label>
                                         </div>
@@ -62,19 +110,21 @@ const Booking = () => {
                                                 placeholder="Your Email"
                                                 value={formData.email}
                                                 onChange={handleChange}
+                                                required
                                             />
                                             <label htmlFor="email">Your Email</label>
                                         </div>
                                     </div>
                                     <div className="col-md-6">
-                                        <div className="form-floating date" id="date3" data-target-input="nearest">
+                                        <div className="form-floating">
                                             <input
-                                                type="text"
-                                                className="form-control bg-transparent datetimepicker-input"
+                                                type="date"
+                                                className="form-control bg-transparent"
                                                 id="dateTime"
                                                 placeholder="Date & Time"
                                                 value={formData.dateTime}
                                                 onChange={handleChange}
+                                                required
                                             />
                                             <label htmlFor="dateTime">Date & Time</label>
                                         </div>
@@ -86,15 +136,30 @@ const Booking = () => {
                                                 id="destination"
                                                 value={formData.destination}
                                                 onChange={handleChange}
+                                                required
                                             >
-                                                <option value="" disabled selected hidden>
-                                                    Select Destination
-                                                </option>
-                                                <option value="1">Destination 1</option>
-                                                <option value="2">Destination 2</option>
-                                                <option value="3">Destination 3</option>
+                                                <option value="" disabled hidden>Select Destination</option>
+                                                {destinations.map((dest) => (
+                                                    <option key={dest.id} value={dest.id}>
+                                                        {dest.name}
+                                                    </option>
+                                                ))}
                                             </select>
                                             <label htmlFor="destination">Destination</label>
+                                        </div>
+                                    </div>
+                                    <div className="col-md-6">
+                                        <div className="form-floating">
+                                            <input
+                                                type="number"
+                                                className="form-control bg-transparent"
+                                                id="num_people"
+                                                value={formData.num_people}
+                                                onChange={handleChange}
+                                                min="1"
+                                                required
+                                            />
+                                            <label htmlFor="num_people">Number of People</label>
                                         </div>
                                     </div>
                                     <div className="col-12">
