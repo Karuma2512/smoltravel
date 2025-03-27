@@ -1,0 +1,93 @@
+.about-us-section {
+    display: flex;
+    flex-wrap: wrap;
+    background-color: #2c3e50; /* Nền xanh đậm */
+    color: white; /* Chữ trắng */
+    padding: 50px;
+  }
+  .about-us-section {
+    padding-top: 120px; 
+  }
+  
+  .about-us-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    width: 100%;
+  }
+  
+  .about-us-image-container {
+    flex: 1;
+    max-width: 500px; 
+    height: auto;
+  }
+  
+  .about-us-image {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+  
+  .about-us-text-container {
+    flex: 2;
+    max-width: 600px;
+  }
+  
+  .about-us-section-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #f1c40f; /* Màu vàng */
+    margin-bottom: 10px;
+  }
+  
+  .about-us-title {
+    font-size: 36px;
+    margin-bottom: 20px;
+  }
+  
+  .about-us-highlight {
+    color: #f1c40f; /* Màu vàng */
+  }
+  
+  .about-us-description {
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+  
+  .about-us-features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 20px;
+    margin-bottom: 20px;
+  }
+  
+  .about-us-features p {
+    flex: 1 1 45%;
+    font-size: 16px;
+  }
+  
+  .about-us-icon {
+    color: #f1c40f; /* Màu vàng */
+    margin-right: 8px;
+  }
+  
+  .about-us-btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #f1c40f; /* Nút vàng */
+    color: #2c3e50; /* Chữ xanh đậm */
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+  }
+  
+  .about-us-btn:hover {
+    background-color: #d4ac0d; /* Nút vàng đậm hơn khi hover */
+  }
+  
