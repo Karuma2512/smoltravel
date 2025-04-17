@@ -5,22 +5,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Overview } from "@/components/dashboard/overview"
 import { RecentBookings } from "@/components/dashboard/recent-bookings"
 import { DashboardStats } from "@/components/dashboard/dashboard-stats"
-import { useEffect, useState } from "react";
-import axios from "axios";
-
 
 export default function DashboardPage() {
-  interface Booking {
-    id: number;
-    name: string;
-    email: string;
-    dateTime: string;
-    destination: string;
-    specialRequest?: string;
-    num_people: number;
-  }
-  
-
   return (
     <div className="flex flex-col gap-4">
       <div>
@@ -101,3 +87,4 @@ export default function DashboardPage() {
     </div>
   )
 }
+

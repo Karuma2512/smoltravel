@@ -55,7 +55,7 @@ class AuthController extends Controller
                 'email' => 'required|string|email|max:255|unique:users',
                 'password' => 'required|string|min:6',
                 'age' => 'required|integer',
-                'gender' => 'required|string',
+             
                 'country' => 'required|string',
             ]);
 
@@ -64,7 +64,7 @@ class AuthController extends Controller
                 'email' => $validatedData['email'],
                 'password' => Hash::make($validatedData['password']),
                 'age' => $validatedData['age'],
-                'gender' => $validatedData['gender'],
+               
                 'country' => $validatedData['country'],
                 'role' => 'User', // Đặt mặc định là "User"
                 'status' => 'active'
@@ -156,4 +156,19 @@ class AuthController extends Controller
 
         return response()->json(['message' => 'No file uploaded'], 400);
     }
+    // app/Http/Controllers/UserController.php
+
+public function profile(Request $request)
+{
+    $user = $request->user();
+    return response()->json([
+        'name' => $user->name,
+        'email' => $user->email,
+        'age' => $user->age,
+        'nationality' => $user->country,
+        'avatar' => $user->avatar_url,
+        'packages' => $user->packages()->select('id', 'name', 'purchase_date', 'status', 'price')->get()
+    ]);
+}
+
 }

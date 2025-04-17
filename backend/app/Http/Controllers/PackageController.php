@@ -39,7 +39,7 @@ class PackageController extends Controller
             'status' => 'required|in:active,inactive',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
-    
+
         // Kiểm tra upload ảnh từ form
         if ($request->hasFile('image')) {
             $imagePath = $request->file('image')->store('packages', 'public');
@@ -47,38 +47,38 @@ class PackageController extends Controller
         } elseif ($request->image_url && filter_var($request->image_url, FILTER_VALIDATE_URL)) {
             $validated['image_url'] = $request->image_url;
         }
-    
+
         $package = Package::create($validated);
-    
+
         return response()->json($package, 201);
     }
-    
-    public function update(Request $request,Package $package)
-{
-    $validated = $request->validate([
-        'name' => 'sometimes|string|max:255',
-        'destination' => 'sometimes|string|max:255',
-        'duration' => 'sometimes|string|max:255',
-        'price' => 'sometimes|numeric',
-        'description' => 'nullable|string',
-        'featured' => 'nullable|in:0,1',
-        'status' => 'nullable|in:active,inactive',
-        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
-    ]);
 
-    if ($request->hasFile('image')) {
-        if ($package->image_url) {
-            Storage::disk('public')->delete($package->image_url);
+    public function update(Request $request, Package $package)
+    {
+        $validated = $request->validate([
+            'name' => 'sometimes|string|max:255',
+            'destination' => 'sometimes|string|max:255',
+            'duration' => 'sometimes|string|max:255',
+            'price' => (float) $package->price,
+            'description' => 'nullable|string',
+            'featured' => 'nullable|in:0,1',
+            'status' => 'nullable|in:active,inactive',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+        ]);
+
+        if ($request->hasFile('image')) {
+            if ($package->image_url) {
+                Storage::disk('public')->delete($package->image_url);
+            }
+            $imagePath = $request->file('image')->store('packages', 'public');
+            $validated['image_url'] = $imagePath;
+        } elseif ($request->image_url && filter_var($request->image_url, FILTER_VALIDATE_URL)) {
+            $validated['image_url'] = $request->image_url;
         }
-        $imagePath = $request->file('image')->store('packages', 'public');
-        $validated['image_url'] = $imagePath;
-    } elseif ($request->image_url && filter_var($request->image_url, FILTER_VALIDATE_URL)) {
-        $validated['image_url'] = $request->image_url;
-    }
-    $package->update($validated);
+        $package->update($validated);
 
-    return response()->json($package, 200);
-}
+        return response()->json($package, 200);
+    }
 
     public function hide($id)
     {

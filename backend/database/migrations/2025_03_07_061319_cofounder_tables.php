@@ -16,7 +16,7 @@ return new class extends Migration {
             $table->string('linkedin')->nullable();
             $table->string('twitter')->nullable();
             $table->date('join_date')->nullable();
-            $table->string('profile_picture')->nullable(); // Lưu đường dẫn ảnh
+            $table->string('profile_picture')->nullable(); 
             $table->timestamps();
         });
     }

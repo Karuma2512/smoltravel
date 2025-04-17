@@ -8,6 +8,8 @@ use App\Http\Controllers\StaffMemberController;
 use App\Http\Controllers\DestinationController;
 use App\Http\Controllers\PackageController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\PaymentController;
+
 use App\Models\User;
 
 
@@ -26,7 +28,7 @@ Route::prefix('packages')->group(function () {
     Route::get('/{package}', [PackageController::class, 'show']); // Lấy chi tiết
     Route::put('/{package}', [PackageController::class, 'update']); // Cập nhật
     Route::delete('/hide/{id}', [PackageController::class, 'hide']); // Ẩn gói (Soft Delete)
-    // Route::put('/restore/{id}', [PackageController::class, 'restore']); // Khôi phục
+   
     Route::delete('/{id}', [PackageController::class, 'destroy']); // Xóa vĩnh viễn 
 });
 
@@ -38,8 +40,11 @@ Route::get('destinations/search', [DestinationController::class, 'search']);
 
 
 
+Route::get('/momo/{order_id}/{amount}', [PaymentController::class, 'generateMomoQR']);
 
 Route::post('/co-founders/{id}/activate', [CoFounderController::class, 'activate']);
+
+
 
 Route::middleware(['api'])->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
@@ -49,13 +54,18 @@ Route::middleware(['api'])->group(function () {
     Route::post('/users/{id}/restore', [AuthController::class, 'restoreUser']); // Khôi phục người dùng
  
 });
-
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::get('/profile', [AuthController::class, 'profile']);
+});
 
 Route::middleware(['api'])->group(function () {
     Route::post('/bookings', [BookingController::class, 'store']); // Đặt chỗ
     Route::get('/my-bookings', [BookingController::class, 'userBookings']); // Lấy danh sách booking của user
     Route::post('/bookings/{id}/cancel', [BookingController::class, 'cancel']); // Hủy booking
+    Route::get('/admin/bookings', [BookingController::class, 'index']);
+   
 
+    
 });
 
 

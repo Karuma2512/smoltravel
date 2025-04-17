@@ -117,63 +117,77 @@ export default function PackagesPage() {
       </div>
 
       <Card>
-        <CardHeader>
-          <CardTitle>Travel Packages</CardTitle>
-          <CardDescription>View and manage all travel packages in the system</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>ID</TableHead>
-                  <TableHead>Image</TableHead>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Destination</TableHead>
-                  <TableHead>Duration</TableHead>
-                  <TableHead>Price</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {packages.length > 0 ? (
-                  packages.map((pkg) => (
-                    <TableRow key={pkg.id}>
-                      <TableCell>{pkg.id}</TableCell>
-                      <TableCell>
-                      <img src={pkg.image_url || "https://via.placeholder.com/100"} alt={pkg.name} className="h-12 w-20 object-cover" />
-                      </TableCell>
+  <CardHeader>
+    <CardTitle>Travel Packages</CardTitle>
+    <CardDescription>View and manage all travel packages in the system</CardDescription>
+  </CardHeader>
+  <CardContent>
+    <div className="border rounded-md">
+    
+      <Table>
+      <TableHeader style={{ backgroundColor: "#020817", color: "white" }}>
+          <TableRow>
+            <TableHead>ID</TableHead>
+            <TableHead>Image</TableHead>
+            <TableHead>Name</TableHead>
+            <TableHead >Destination</TableHead>
+            <TableHead className="text-center">Duration</TableHead>
+            <TableHead>Price</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead className="text-right">Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+      </Table>
 
-                      <TableCell>{pkg.name}</TableCell>
-                      <TableCell>{pkg.destination}</TableCell>
-                      <TableCell>{pkg.duration}</TableCell>
-                      <TableCell>${pkg.price}</TableCell>
-                      <TableCell>
-                        <Badge variant={pkg.status === "active" ? "default" : "secondary"}>{pkg.status}</Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button variant="ghost" size="icon" onClick={() => handleEditPackage(pkg)}>
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleDeletePackage(pkg.id)}>
-                          ❌
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={8} className="text-center">
-                      No packages found.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Cuộn dữ liệu mà không cuộn tiêu đề */}
+      <div className="max-h-[400px] overflow-y-auto">
+        <Table>
+          <TableBody>
+            {packages.length > 0 ? (
+              packages.map((pkg) => (
+                <TableRow key={pkg.id}>
+                  <TableCell>{pkg.id}</TableCell>
+                  <TableCell>
+                    <img
+                      src={pkg.image_url || "https://via.placeholder.com/100"}
+                      alt={pkg.name}
+                      className="h-12 w-20 object-cover"
+                    />
+                  </TableCell>
+                  <TableCell>{pkg.name}</TableCell>
+                  <TableCell className="p-2 text-center">{pkg.destination}</TableCell>
+
+                  <TableCell>{pkg.duration}</TableCell>
+                  <TableCell>${pkg.price}</TableCell>
+                  <TableCell>
+                    <Badge variant={pkg.status === "active" ? "default" : "secondary"}>
+                      {pkg.status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Button variant="ghost" size="icon" onClick={() => handleEditPackage(pkg)}>
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="icon" onClick={() => handleDeletePackage(pkg.id)}>
+                      ❌
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={8} className="text-center">
+                  No packages found.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
+  </CardContent>
+</Card>
+
 
       <PackageDialog
         open={isDialogOpen}

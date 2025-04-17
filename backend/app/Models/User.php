@@ -13,7 +13,7 @@ class User extends Authenticatable
     use HasFactory, Notifiable, SoftDeletes, HasApiTokens; // Chỉ cần khai báo một lần
 
     protected $fillable = [
-        'name', 'email', 'password', 'age', 'gender', 'country', 'role', 'status',
+        'name', 'email', 'password', 'age', 'country', 'role', 'status',
     ];
 
     protected $hidden = [
@@ -25,4 +25,16 @@ class User extends Authenticatable
         'password' => 'hashed',
         'deleted_at' => 'datetime', // Laravel tự động hiểu soft delete
     ];
+    
+public function getAvatarUrlAttribute()
+{
+    return $this->avatar ? asset($this->avatar) : null;
+}
+// app/Models/User.php
+
+public function packages()
+{
+    return $this->hasMany(Package::class); // Giả sử là model Package
+}
+
 }
