@@ -76,14 +76,6 @@ function RegisterForm() {
           </div>
 
           <div className="input-field">
-            <select name="gender" value={formData.gender} onChange={handleChange} required>
-              <option value="">Select Gender</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-            </select>
-          </div>
-
-          <div className="input-field">
             <select name="country" value={formData.country} onChange={handleChange} required>
               <option value="">Select Country</option>
               {countryList.map((country, index) => (

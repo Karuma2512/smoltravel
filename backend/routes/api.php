@@ -55,10 +55,7 @@ Route::middleware(['api'])->group(function () {
     Route::post('/bookings', [BookingController::class, 'store']); // Đặt chỗ
     Route::get('/my-bookings', [BookingController::class, 'userBookings']); // Lấy danh sách booking của user
     Route::post('/bookings/{id}/cancel', [BookingController::class, 'cancel']); // Hủy booking
+
 });
 
-// Admin routes
-// Route::middleware(['auth:sanctum', 'admin'])->group(function () {
-//     Route::get('/bookings', [BookingController::class, 'index']); // Lấy danh sách booking
-//     Route::post('/bookings/{id}/confirm', [BookingController::class, 'confirm']); // Xác nhận booking
-// });
+

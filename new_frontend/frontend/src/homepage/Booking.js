@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './booking.css';
+import { useNavigate } from 'react-router-dom';
 
 const Booking = () => {
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         name: '',
         email: '',
         dateTime: '',
         destination: '',
         specialRequest: '',
-        num_people: 1
+        number_of_people: 1
     });
 
     const [message, setMessage] = useState('');
@@ -35,43 +37,51 @@ const Booking = () => {
             [id]: value
         });
     };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
+
         try {
-            const token = localStorage.getItem('token'); 
+            const token = localStorage.getItem('token');
+
+            const bookingData = {
+                name: formData.name,
+                email: formData.email,
+                phone: formData.phone,
+                package_id: formData.destination,  // Thêm destination
+                booking_date: formData.dateTime,  // Thêm dateTime
+                number_of_people: formData.number_of_people,  // Thêm number_of_people
+                special_request: formData.specialRequest,  // Thêm specialRequest
+                status: 'pending',  // Thêm status là 'pending'
+                payment_status: 'unpaid',  // Thêm payment_status là 'unpaid'
+            };
+
             const response = await axios.post(
-                'http://localhost:8000/api/bookings',
-                {
-                    package_id: formData.destination, 
-                    booking_date: formData.dateTime,
-                    num_people: formData.num_people,
-                    special_request: formData.specialRequest
-                },
+                'http://localhost:8000/api/bo   okings',
+                bookingData,
                 {
                     headers: {
-                        Authorization: `Bearer ${token}`
-                    }
+                        Authorization: `Bearer ${token}`,
+                    },
                 }
             );
 
-            setMessage('Booking successful!');
+            // Reset form data sau khi gửi thành công
             setFormData({
                 name: '',
                 email: '',
+                phone: '',
                 dateTime: '',
                 destination: '',
                 specialRequest: '',
-                num_people: 1
+                number_of_people: 1,
             });
 
-            console.log(response.data);
+        
         } catch (error) {
             console.error("Booking failed:", error.response ? error.response.data : error.message);
             setMessage('Booking failed. Please try again.');
         }
     };
-
     return (
         <div className="container-xxl py-5 wow fadeInUp" data-wow-delay="0.1s">
             <div className="container">
@@ -153,15 +163,16 @@ const Booking = () => {
                                             <input
                                                 type="number"
                                                 className="form-control bg-transparent"
-                                                id="num_people"
-                                                value={formData.num_people}
+                                                id="number_of_people"
+                                                value={formData.number_of_people}
                                                 onChange={handleChange}
                                                 min="1"
                                                 required
                                             />
-                                            <label htmlFor="num_people">Number of People</label>
+                                            <label htmlFor="number_of_people">Number of People</label>
                                         </div>
                                     </div>
+
                                     <div className="col-12">
                                         <div className="form-floating">
                                             <textarea

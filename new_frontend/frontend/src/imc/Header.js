@@ -96,8 +96,8 @@ const Navbar = () => {
             <NavLink to="/contact" className={({ isActive }) => `nav-item nav-link ${isActive ? "active" : ""}`}>
               Contact
             </NavLink>
-            <NavLink to="/AI" className={({ isActive }) => `nav-item nav-link ${isActive ? "active" : ""}`}>
-              Plan AI
+            <NavLink to="http://localhost:3003" className={({ isActive }) => `nav-item nav-link ${isActive ? "active" : ""}`}>
+              Chatbot
             </NavLink>
           </div>
 
